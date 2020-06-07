@@ -1,0 +1,100 @@
+#include "layer.h"
+
+/* The sigmoid function and derivative. */
+double sigmoid(double x)
+{
+  double y = 1/(1 + exp(-x));
+  return y;
+}
+
+double sigmoidprime(double x)
+{
+  return x*(1 - x);
+}
+
+/* Creates a single layer. */
+layer_t *layer_create()
+{
+  layer_t *new = malloc(sizeof(layer_t));
+  if (!new) {
+    return NULL;
+  }
+  new->num_inputs = 0;
+  new->num_outputs = 0;
+  new->outputs = NULL;
+  new->prev = NULL;
+  new->next = NULL;
+  new->weights = NULL;
+  new->biases = NULL;
+  new->deltas = NULL;
+  return new;
+}
+
+/* Initialises the given layer. */
+bool layer_init(layer_t *layer, int num_outputs, layer_t *prev)
+{
+  layer->num_outputs = num_outputs;
+  layer->outputs = calloc(num_outputs, sizeof(double));
+  if (!layer->outputs) {
+    return true;
+  }  
+  if (prev != NULL) {
+    layer->prev = prev;
+    layer->num_inputs = prev->num_outputs;
+    layer->biases = calloc(layer->num_inputs, sizeof(double));
+    layer->deltas = calloc(layer->num_inputs, sizeof(double));
+    layer->weights = calloc(layer->num_inputs, sizeof(double*));
+    for (int i = 0; i < layer->num_inputs; i++) {
+      layer->weights[i] = malloc(sizeof(double));
+      *(layer->weights[i]) = ANN_RANDOM();
+    }
+    if (!layer->biases | !layer->deltas | !layer->weights) {
+      return true;
+    }  
+  }
+  return false;
+}
+
+/* Frees a given layer. */
+void layer_free(layer_t *layer)
+{
+  free(layer->outputs);
+  free(layer->biases);
+  free(layer->deltas);
+  for (int i = 0; i < layer->num_inputs; i++){
+    free(layer->weights[i]);
+  }  
+  free(layer->weights);
+  free(layer);
+}
+
+/* Computes the outputs of the current layer. */
+void layer_compute_outputs(layer_t const *layer)
+{
+  assert(layer->prev != NULL);
+  for (int j = 0; j < layer->num_outputs; j++) {
+    double sum = 0;
+    for (int i = 0; i < (layer->prev)->num_outputs; i++) {
+      sum += layer->weights[i][j] * (layer->prev)->outputs[i];
+    }
+    layer->outputs[j] = sigmoid(layer->biases[j] + sum);
+  }  
+}
+
+/* Computes the delta errors for this layer. */
+void layer_compute_deltas(layer_t const *layer)
+{
+  /**** PART 1 - QUESTION 6 ****/
+  /* objective: compute layer->deltas */
+
+  /* 2 MARKS */
+}
+
+/* Updates weights and biases according to the delta errors given learning rate. */
+void layer_update(layer_t const *layer, double l_rate)
+{
+  /**** PART 1 - QUESTION 7 ****/
+  /* objective: update layer->weights and layer->biases */
+
+  /* 1 MARK */
+}
